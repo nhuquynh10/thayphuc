@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Đồ thị tri thức cây thuốc - GS.TS. Đỗ Tất Lợi</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#eef4fa;color:#203047}.app{max-width:1500px;margin:auto;padding:12px}.banner{text-align:center;color:#c21c25;font-weight:700;font-size:20px;padding:12px 4px}.banner small{display:block;font-size:13px;margin-top:5px;color:#50657a}.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.btn{border:1px solid #9fb2c5;border-radius:6px;padding:9px 13px;cursor:pointer;font-weight:600;background:#e2f1ff}.btn.green{background:#c6edc2}.btn.purple{background:#ead4f2}.btn.orange{background:#ffe0a0}.btn.red{background:#f7b3b3}.btn:hover{filter:brightness(.96)}.layout{display:grid;grid-template-columns:1fr 1fr;gap:12px}.stack{display:grid;grid-template-rows:minmax(380px,1.8fr) minmax(210px,1fr);gap:12px;min-width:0}.panel{background:#e6f2ff;border:2px solid #274d86;border-radius:7px;min-width:0;overflow:hidden;display:flex;flex-direction:column}.panel h2{font-size:15px;margin:0;background:#fff28c;color:#b91c1c;padding:9px}.panel-body{padding:10px;overflow:auto;flex:1;min-height:0}.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}.filters label{font-size:13px;color:#b91c1c;font-weight:700}input,select{border:1px solid #9aaebe;border-radius:5px;padding:7px;max-width:100%}select{width:150px}.source{width:180px}.k{width:62px}table{border-collapse:collapse;width:100%;font-size:13px;background:white}th{background:#ccfaff;color:#144d91;position:sticky;top:0}td,th{border:1px solid #c4d4e0;padding:7px;text-align:left}tbody tr{cursor:pointer}tbody tr:hover,tbody tr.selected{background:#d8ecff}.table-wrap{overflow:auto;max-height:330px;border:1px solid #bdcddd}.hint{color:#53697b;font-size:12px;margin:6px 0}.canvas-area{position:relative;flex:1;min-height:280px;background:#fff}canvas{width:100%;height:100%;display:block;touch-action:none;cursor:grab}canvas:active{cursor:grabbing}.image-view{display:none;width:100%;height:100%;object-fit:contain;background:#fff}.output{white-space:pre-wrap;font:13px/1.6 Consolas,'Courier New',monospace;background:#fff;padding:10px;min-height:100%;overflow-wrap:anywhere}.guide{font-size:14px;line-height:1.7}.status{font-size:12px;color:#46627b;margin:5px 0}.upload{display:inline-flex;align-items:center;gap:6px}.upload input{display:none}@media(max-width:850px){.layout{grid-template-columns:1fr}.stack{grid-template-rows:440px 240px}.banner{font-size:17px}}
+</style></head><body><div class="app"><header class="banner">Đồ thị tri thức được tạo từ cuốn sách “Những cây thuốc và vị thuốc Việt Nam” của GS.TS. Đỗ Tất Lợi<small>Được phát triển bởi Prof Happy AI Research Group, 2026</small></header>
+<div class="toolbar"><button id="draw" class="btn green">Draw Neighbours</button><button id="image" class="btn purple">Show Image</button><button id="paths" class="btn orange">Find k path</button><button id="clear" class="btn red">Clear All</button><label class="btn upload">Chọn CSV <input id="csvFile" type="file" accept=".csv,text/csv"></label><label class="btn upload">Chọn ảnh <input id="imageFile" type="file" accept="image/*"></label></div>
+<div class="layout"><div class="stack"><section class="panel"><h2>Cửa sổ 1: Dữ liệu Tri thức</h2><div class="panel-body"><div class="status" id="filename">Tệp KG hiện tại: Dữ liệu mẫu</div><div class="filters"><label for="head">Head:</label><select id="head"></select><label for="tail">Tail:</label><select id="tail"></select><button id="filter" class="btn">Filter</button></div><div class="filters"><label for="source">Source:</label><input class="source" id="source" placeholder="Nhập tên đỉnh"><label for="k">k =</label><input id="k" class="k" type="number" min="0" max="12" value="2"></div><div class="table-wrap"><table><thead><tr><th>Head</th><th>Predicate</th><th>Tail</th></tr></thead><tbody id="rows"></tbody></table></div><p class="hint" id="count"></p></div></section>
+<section class="panel"><h2>Cửa sổ 2: Hướng dẫn &amp; Giới thiệu</h2><div class="panel-body guide"><b>📖 GIỚI THIỆU SÁCH “Những cây thuốc và vị thuốc Việt Nam”</b><p>Tác giả: Giáo sư Tiến sĩ Đỗ Tất Lợi. Sách hệ thống hóa kiến thức về cây thuốc, vị thuốc, động vật và khoáng vật làm thuốc ở Việt Nam, cùng các phương pháp bào chế và ứng dụng trong y học cổ truyền.</p><b>🛠 HƯỚNG DẪN</b><ol><li>Ứng dụng tự đọc <code>Edges.csv</code> nếu có, hoặc dùng dữ liệu mẫu.</li><li>Chọn Head/Tail và nhấn Filter. Nhấn vào một dòng để tự động vẽ đồ thị các đỉnh kề của Head ở khung đồ thị bên phải.</li><li>Nhấn Draw Neighbours để vẽ các đỉnh kề; kéo từng node để thay đổi vị trí; đồ thị tự cân bằng bằng lực đẩy/hút, kéo nền để di chuyển, cuộn để phóng to.</li><li>Nhấn Show Image để xem ảnh sách; có thể chọn ảnh khác.</li><li>Nhập k và nhấn Find k path để liệt kê các đường đi đơn dài k.</li><li>Clear All xóa bộ lọc và kết quả hiển thị.</li></ol></div></section></div>
+<div class="stack"><section class="panel"><h2>Cửa sổ 3: Đồ thị Node kề / Hiển thị Ảnh</h2><div class="canvas-area" id="viewport"><canvas id="graph"></canvas><img id="photo" class="image-view" alt="Ảnh sách hoặc dược liệu"></div><div class="status" id="graphStatus" style="padding:0 10px">Nhấn vào một dòng ở Cửa sổ 1 để tự động vẽ đồ thị, hoặc nhập Source rồi nhấn Draw Neighbours.</div></section>
+<section class="panel"><h2>Cửa sổ 4: Kết quả văn bản (k-path kèm Predicate)</h2><div class="panel-body" style="padding:0"><div class="output" id="output">Kết quả sẽ hiển thị ở đây.</div></div></section></div></div></div>
+<script>
+'use strict';
+const sample=`Head,Predicate,Tail\nNhục quế,Trị,Tỳ vị hư hàn\nNhục quế,Chữa_Triệu_Chứng,Đau bụng\nPhụ tử,Trị,Hàn thấp bại liệt\nPhụ tử,Chữa_Triệu_Chứng,Ho hen`;
+const $=id=>document.getElementById(id);let edges=[],adj=new Map(),edgeLabels=new Map(),nodes=[],links=[],selectedRow=null,scale=1,offsetX=0,offsetY=0,drag=null,photoUrl=null,simulationRunning=false,raf=0;
+function parseCSV(s){s=s.replace(/^\uFEFF/,'');let out=[],row=[],field='',quoted=false;for(let i=0;i<s.length;i++){let c=s[i];if(quoted){if(c==='"'&&s[i+1]==='"'){field+='"';i++}else if(c==='"')quoted=false;else field+=c}else if(c==='"')quoted=true;else if(c===','){row.push(field);field=''}else if(c==='\n'||c==='\r'){if(c==='\r'&&s[i+1]==='\n')i++;row.push(field);if(row.some(x=>x.trim()))out.push(row);row=[];field=''}else field+=c}row.push(field);if(row.some(x=>x.trim()))out.push(row);if(!out.length)return [];let hdr=out.shift().map(x=>x.trim().toLowerCase()),h=hdr.indexOf('head'),p=hdr.indexOf('predicate'),t=hdr.indexOf('tail');if([h,p,t].some(x=>x<0))throw Error('CSV phải có 3 cột Head, Predicate, Tail');return out.map(r=>({h:(r[h]||'').trim(),p:(r[p]||'').trim(),t:(r[t]||'').trim()})).filter(r=>r.h&&r.t)}
+function setData(text,name){const data=parseCSV(text);if(!data.length)throw Error('CSV không có dòng dữ liệu hợp lệ');edges=data;adj=new Map();edgeLabels=new Map();for(const {h,p,t} of edges){if(!adj.has(h))adj.set(h,new Set());if(!adj.has(t))adj.set(t,new Set());adj.get(h).add(t);adj.get(t).add(h);edgeLabels.set(JSON.stringify([h,t]),p);edgeLabels.set(JSON.stringify([t,h]),p)}$('filename').textContent='Tệp KG hiện tại: '+name;for(const [id,key] of [['head','h'],['tail','t']]){let sel=$(id);sel.replaceChildren();for(const value of ['All',...new Set(edges.map(e=>e[key]))].sort((a,b)=>a==='All'?-1:b==='All'?1:a.localeCompare(b,'vi'))){let opt=document.createElement('option');opt.value=opt.textContent=value;sel.append(opt)}}$('source').value='';filterRows();clearVisual()}
+function filterRows(){let h=$('head').value,t=$('tail').value,filtered=edges.filter(e=>(h==='All'||e.h===h)&&(t==='All'||e.t===t));let body=$('rows');body.replaceChildren();for(const e of filtered){let tr=document.createElement('tr');for(const v of [e.h,e.p,e.t]){let td=document.createElement('td');td.textContent=v;tr.append(td)}tr.addEventListener('click',()=>{if(selectedRow)selectedRow.classList.remove('selected');selectedRow=tr;tr.classList.add('selected');$('source').value=e.h;drawNeighbours()});body.append(tr)}$('count').textContent=`Hiển thị ${filtered.length} / ${edges.length} triple`}
+function pred(a,b){return edgeLabels.get(JSON.stringify([a,b]))||''}
+function drawNeighbours(){
+ const source=$('source').value.trim();
+ if(!source){alert('Vui lòng chọn hoặc nhập Source!');return}
+ if(!adj.has(source)){alert(`Node '${source}' không tồn tại trong đồ thị!`);return}
+ const neighbors=[...adj.get(source)];
+ $('output').textContent=`--- Các hàng xóm trực tiếp của '${source}' ---\n`+
+ neighbors.map(n=>`- ${source} --[${pred(source,n)}]--> ${n}`).join('\n');
+ const names=[source,...neighbors], radius=Math.max(85,Math.min(260,neighbors.length*18));
+ nodes=names.map((id,i)=>({
+   id, x:i===0?0:radius*Math.cos((i-1)*Math.PI*2/Math.max(1,neighbors.length)),
+   y:i===0?0:radius*Math.sin((i-1)*Math.PI*2/Math.max(1,neighbors.length)),
+   vx:0,vy:0,central:i===0,fixed:false
+ }));
+ links=[];
+ for(let i=0;i<names.length;i++)for(let j=i+1;j<names.length;j++)
+   if(adj.get(names[i]).has(names[j]))links.push([i,j,pred(names[i],names[j])]);
+ scale=1;offsetX=0;offsetY=0;showCanvas();
+ $('graphStatus').textContent=`${nodes.length} đỉnh · ${links.length} cạnh | Kéo node · Kéo nền · Cuộn để zoom · Click node để chọn`;
+ startSimulation();
+}
+function showCanvas(){$('photo').style.display='none';$('graph').style.display='block';resize()}
+function resize(){
+ let c=$('graph'),r=$('viewport').getBoundingClientRect(),d=window.devicePixelRatio||1;
+ c.width=Math.max(1,Math.round(r.width*d));c.height=Math.max(1,Math.round(r.height*d));paint();
+}
+function paint(){
+ const c=$('graph');if(c.style.display==='none')return;
+ const ctx=c.getContext('2d'),d=window.devicePixelRatio||1,w=c.width/d,h=c.height/d;
+ ctx.setTransform(d,0,0,d,0,0);ctx.clearRect(0,0,w,h);
+ ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);
+ ctx.translate(w/2+offsetX,h/2+offsetY);ctx.scale(scale,scale);
+ for(const [i,j,p] of links){
+   const a=nodes[i],b=nodes[j];
+   ctx.strokeStyle='#a8b9c9';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+   const mx=(a.x+b.x)/2,my=(a.y+b.y)/2;
+   if(p){
+     ctx.font='11px Arial';const tw=ctx.measureText(p).width;
+     ctx.fillStyle='rgba(255,255,255,.9)';ctx.fillRect(mx-tw/2-3,my-14,tw+6,17);
+     ctx.fillStyle='#37536b';ctx.textAlign='center';ctx.fillText(p,mx,my-2);
+   }
+ }
+ for(const n of nodes){
+   ctx.beginPath();ctx.arc(n.x,n.y,n.central?23:19,0,Math.PI*2);
+   ctx.fillStyle=n.central?'#f5a43c':'#8ac9ed';ctx.fill();
+   ctx.lineWidth=2;ctx.strokeStyle=n.fixed?'#dd6b20':'#4b7290';ctx.stroke();
+   ctx.font=(n.central?'bold ':'')+'12px Arial';ctx.textAlign='center';
+   const tw=ctx.measureText(n.id).width;
+   ctx.fillStyle='rgba(255,255,255,.9)';ctx.fillRect(n.x-tw/2-3,n.y+25,tw+6,17);
+   ctx.fillStyle='#183348';ctx.fillText(n.id,n.x,n.y+38);
+ }
+}
+function physicsStep(){
+ const n=nodes.length;if(!n)return;
+ // Repulsion (Barnes-Hut would be preferable for very large graphs; neighbour graphs are small).
+ const force=13000, rest=115, spring=.016, damping=.84;
+ for(let i=0;i<n;i++)for(let j=i+1;j<n;j++){
+   let a=nodes[i],b=nodes[j],dx=b.x-a.x,dy=b.y-a.y;
+   let dist2=dx*dx+dy*dy+100,dist=Math.sqrt(dist2);
+   let f=Math.min(18,force/dist2),fx=f*dx/dist,fy=f*dy/dist;
+   if(!a.fixed){a.vx-=fx;a.vy-=fy}
+   if(!b.fixed){b.vx+=fx;b.vy+=fy}
+ }
+ for(const [i,j] of links){
+   const a=nodes[i],b=nodes[j],dx=b.x-a.x,dy=b.y-a.y,dist=Math.max(1,Math.hypot(dx,dy));
+   const f=(dist-rest)*spring,fx=f*dx/dist,fy=f*dy/dist;
+   if(!a.fixed){a.vx+=fx;a.vy+=fy}
+   if(!b.fixed){b.vx-=fx;b.vy-=fy}
+ }
+ let energy=0;
+ for(const node of nodes){
+   if(node.fixed){node.vx=0;node.vy=0;continue}
+   node.vx=(node.vx-node.x*.0008)*damping;
+   node.vy=(node.vy-node.y*.0008)*damping;
+   node.vx=Math.max(-13,Math.min(13,node.vx));
+   node.vy=Math.max(-13,Math.min(13,node.vy));
+   node.x+=node.vx;node.y+=node.vy;
+   energy+=node.vx*node.vx+node.vy*node.vy;
+ }
+ return energy;
+}
+let remainingFrames=0;
+function startSimulation(){
+ remainingFrames=300;
+ if(simulationRunning)return;
+ simulationRunning=true;
+ function frame(){
+   if(!simulationRunning)return;
+   let energy=physicsStep();paint();remainingFrames--;
+   if(remainingFrames>0 && (energy>0.03 || remainingFrames>240))raf=requestAnimationFrame(frame);
+   else{simulationRunning=false;paint()}
+ }
+ raf=requestAnimationFrame(frame);
+}
+function canvasPoint(e){const r=$('graph').getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
+function toGraph(p){const r=$('graph').getBoundingClientRect();return{x:(p.x-r.width/2-offsetX)/scale,y:(p.y-r.height/2-offsetY)/scale}}
+function hitNode(e){
+ const p=toGraph(canvasPoint(e));
+ for(let i=nodes.length-1;i>=0;i--)if(Math.hypot(nodes[i].x-p.x,nodes[i].y-p.y)<=26)return nodes[i];
+ return null;
+}
+const graphCanvas=$('graph');
+graphCanvas.addEventListener('pointerdown',e=>{
+ if(e.button!==0)return;
+ const node=hitNode(e);
+ drag={kind:node?'node':'pan',node,startX:e.clientX,startY:e.clientY,
+   startNodeX:node?.x,startNodeY:node?.y,ox:offsetX,oy:offsetY,moved:false};
+ if(node)node.fixed=true;
+ graphCanvas.setPointerCapture(e.pointerId);graphCanvas.style.cursor='grabbing';
+});
+graphCanvas.addEventListener('pointermove',e=>{
+ if(!drag){graphCanvas.style.cursor=hitNode(e)?'pointer':'grab';return}
+ const dx=e.clientX-drag.startX,dy=e.clientY-drag.startY;
+ if(Math.abs(dx)+Math.abs(dy)>3)drag.moved=true;
+ if(drag.kind==='node'){
+   drag.node.x=drag.startNodeX+dx/scale;drag.node.y=drag.startNodeY+dy/scale;
+   drag.node.vx=0;drag.node.vy=0;
+   startSimulation();
+ }else{offsetX=drag.ox+dx;offsetY=drag.oy+dy}
+ paint();
+});
+function endDrag(e){
+ if(!drag)return;
+ const d=drag;drag=null;
+ if(d.node){d.node.fixed=false;startSimulation()}
+ if(!d.moved&&d.node){
+   $('source').value=d.node.id;drawNeighbours();
+ }
+ graphCanvas.style.cursor='grab';
+ if(graphCanvas.hasPointerCapture(e.pointerId))graphCanvas.releasePointerCapture(e.pointerId);
+}
+graphCanvas.addEventListener('pointerup',endDrag);
+graphCanvas.addEventListener('pointercancel',endDrag);
+graphCanvas.addEventListener('wheel',e=>{
+ e.preventDefault();
+ const pt=canvasPoint(e),before=toGraph(pt),r=graphCanvas.getBoundingClientRect();
+ scale=Math.max(.15,Math.min(5,scale*(e.deltaY<0?1.1:1/1.1)));
+ offsetX=pt.x-r.width/2-before.x*scale;offsetY=pt.y-r.height/2-before.y*scale;paint();
+},{passive:false});
+function findPaths(){let k=Number($('k').value);if(!Number.isInteger(k)||k<0||k>12){alert('k phải là số nguyên từ 0 đến 12');return}let paths=new Map(),limit=10000;function visit(path){if(paths.size>=limit)return;if(path.length===k+1){let a=JSON.stringify(path),b=JSON.stringify([...path].reverse());paths.set(a<b?a:b,a<b?[...path]:[...path].reverse());return}for(const v of adj.get(path.at(-1))||[])if(!path.includes(v))visit([...path,v])}for(let n of adj.keys()){visit([n]);if(paths.size>=limit)break}let arr=[...paths.values()].sort((a,b)=>a.join('|').localeCompare(b.join('|'),'vi'));$('output').textContent=`Danh sách tất cả các con đường có độ dài k = ${k} (kèm Predicate):\n${'='.repeat(60)}\n`+(arr.length?arr.map((p,i)=>`${i+1}. ${p[0]} `+p.slice(1).map((n,j)=>`--[${pred(p[j],n)}]--> ${n}`).join(' ')).join('\n'):'Không tìm thấy con đường nào!')+(arr.length>=limit?'\n\nĐã giới hạn hiển thị ở 10.000 đường đi để tránh treo trình duyệt.':'')}
+function clearVisual(){simulationRunning=false;cancelAnimationFrame(raf);nodes=[];links=[];scale=1;offsetX=0;offsetY=0;$('output').textContent='Kết quả sẽ hiển thị ở đây.';$('graphStatus').textContent='Nhấn vào một dòng ở Cửa sổ 1 để tự động vẽ đồ thị, hoặc nhập Source rồi nhấn Draw Neighbours.';showCanvas();paint()}
+$('draw').onclick=drawNeighbours;$('paths').onclick=findPaths;$('filter').onclick=filterRows;$('clear').onclick=()=>{$('head').value='All';$('tail').value='All';$('source').value='';$('k').value='2';selectedRow=null;filterRows();clearVisual()};
+$('csvFile').addEventListener('change',async e=>{let f=e.target.files[0];if(!f)return;try{setData(await f.text(),f.name)}catch(err){alert(err.message)}e.target.value=''});
+$('imageFile').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;if(photoUrl)URL.revokeObjectURL(photoUrl);photoUrl=URL.createObjectURL(f);$('photo').src=photoUrl;$('photo').style.display='block';$('graph').style.display='none';$('graphStatus').textContent='Đang hiển thị: '+f.name});
+$('image').onclick=()=>{let im=$('photo');if(im.src&&im.complete&&im.naturalWidth){im.style.display='block';$('graph').style.display='none';return}let candidate='SachCayThuocGSDoTatLoi.jpg';let test=new Image();test.onload=()=>{im.src=candidate;im.style.display='block';$('graph').style.display='none';$('graphStatus').textContent='Đang hiển thị: '+candidate};test.onerror=()=>$('imageFile').click();test.src=candidate};
+window.addEventListener('resize',resize);setData(sample,'Dữ liệu mẫu');fetch('Edges.csv').then(r=>{if(!r.ok)throw Error('Không có Edges.csv');return r.text()}).then(t=>setData(t,'Edges.csv')).catch(()=>{});
+</script></body></html>
